@@ -1,52 +1,48 @@
 
-// for go to root directory
+# Redis for chashing
 
-$ su
+# Start a redis container
+docker run --name rediscont -p 6379:6379 -d redis/redis-stack
 
-// to see all images
+# Interact with Redis
+docker exec -it rediscont redis-cli
 
-$docker images
+# Set a key-value pair
+SET mykey "Hello Redis"
 
-// run container of mysql 
+# Get the value associated with the key
+GET mykey
+SET product camera NX GET EX 100
 
-$ docker run --name mysql-container -d -p 3306:3306 -v mysqldata:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=test mysql:latest
+# Working with lists
+LPUSH mylist "item-1"
+LPUSH mylist "item-2"
+RPUSH mylist "item-3"
 
-// go to exec shell inside mysql container
+# see list index to index
+LRANGE mylist 0 2
 
-$ docker exec -it mysql-container /bin/bash
-
-*// read db // open mysql shell
-
-$ mysql -u root -ptest
-
-// create database
-
-mysql> create database ecom;
-
-*// read db // use ecom
-
-mysql> use ecom
-
-// create table
-
-mysql> CREATE TABLE products(
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(32) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    price INT NOT NULL
-    );
-
-*// read db // see the table
-
-mysql> show tables;
-
-*// read db // see description products table
-
-mysql> desc products;
-
-*// read db // see filled row
-
-mysql> select * from products;
+# see all list item
+LRANGE mylist 0 -1
 
 
+# Publish/Subscribe Messaging
+# first terminal for receive massage
+SUBSCRIBE movies
 
+# in different terminal write this command 
+PUBLISH movies "Lapata Ladies"
+PUBLISH movies "Kaathal"
+
+# Transactions
+SET num 1
+INCR num
+INCR num
+INCR num
+GET num
+
+INCR num
+INCR num
+INCR num
+EXEC
+GET num

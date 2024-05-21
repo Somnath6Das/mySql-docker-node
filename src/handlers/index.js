@@ -1,4 +1,5 @@
 import { create, deleteRecord, find, findById, update } from "../db/queries.js";
+import { getValue, setValue } from "../../redis.js";
 
 export const getAllProducts = async (req, res) => {
   try {
@@ -14,7 +15,15 @@ export const getAllProducts = async (req, res) => {
 export const getProduct = async (req, res) => {
   const id = req.params.id;
    try {
+    const value = await getValue(id);
+    if(value) {
+      // console.log("Value exist in Redis cashe", value);
+      return res.status(200).json({product: value});
+    }
      const product = await findById(id);
+     // store the value in redis cashe
+     await setValue(id, product[0]);
+
      return res.status(200).json({ product });
    } catch (error) {
      console.log("Error while getting product by id:", error);
